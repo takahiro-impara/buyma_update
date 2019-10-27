@@ -14,7 +14,10 @@ class CSV:
         with open(csv_file) as f:
             reader = csv.DictReader(f)
             for row in reader:
-                data.append(row)
+                if len(row['total-sizes']) != 0:
+                    data.append(row)
+                else:
+                    print(row)
         return data
 if __name__ == '__main__':
     test = CSV().GetDictFromCsv('../input/buyma_link.csv')

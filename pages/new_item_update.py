@@ -94,7 +94,7 @@ class ItemUpdate:
         """
         buyma_num = kwargs['buyma_num']
         print('call search_item_sell_page {0}'.format(buyma_num))
-        WebDriverWait(self.browser, 10).until(
+        WebDriverWait(self.browser, 300).until(
                 EC.presence_of_element_located((By.ID, 'conditional_text')))
         search_element = self.browser.find_element(By.ID, 'conditional_text')
         search_element.clear()
@@ -139,6 +139,7 @@ class ItemUpdate:
         del buyma_update_set['']        
         buyma_update_set = self.add_color_size_id(buyma_update_set)
         #全て在庫無しの場合は別の処理を入れる
+        print(buyma_update_data)
         if set([x.split('/')[0] for _,x in buyma_update_set.items()]) == {'在庫なし'}:
             first_size = sorted(buyma_update_set.keys())[0]
             buyma_update_set[first_size] = buyma_update_set[first_size].replace('在庫なし', '買付可')
@@ -148,6 +149,8 @@ class ItemUpdate:
         else:
             self.size_status_modify(buyma_update_set)
             self.click_save()
+            pass
+        self.price_status_modify(buyma_update_data)
 
     def click_size(self, buyma_id):
         """
@@ -223,6 +226,7 @@ class ItemUpdate:
         switch_element.click()
         self.click_save_btn()
         self.open_serach_page()
+
     def click_save_btn(self):
         """
         在庫無しの場合の更新情報保存ボタンをクリック
@@ -233,7 +237,38 @@ class ItemUpdate:
         save_element.click()
         WebDriverWait(self.browser, 30).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'sell-complete__ttl'))) 
-        
+    
+    def price_status_modify(self, buyma_update_data):
+        """
+         販売情報を修正する
+        :params
+            buyma_update_set: buyma更新データ       
+        """
+        buyma_update_data=buyma_update_data
+        print('call update_price {0}'.format(buyma_update_data))
+        self.click_price(buyma_update_data['buyma_id'])
+        WebDriverWait(self.browser, 30).until(
+            EC.presence_of_element_located((By.CLASS_NAME, 'js-item-price'))) 
+        price_input_element = self.browser.find_element_by_name('item_price')
+        price_input_element.clear()
+        price_input_element.send_keys(str(buyma_update_data['change_price']))
+        time.sleep(1)
+        self.save_price()
+        time.sleep(1)
+
+    def click_price(self, buyma_id):
+        """
+        価格の「編集」ボタンをクリック
+        """
+        size_element = self.browser.find_element(By.CLASS_NAME, '_item_edit_tanka')
+        size_element.click()
+    
+    def save_price(self):
+        """
+        価格の「設定する」ボタンをクリック
+        """
+        size_element = self.browser.find_element(By.LINK_TEXT, '設定する')
+        size_element.click()       
 
 if __name__ == '__main__':
     all_item_url = []

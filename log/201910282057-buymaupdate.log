@@ -1,0 +1,4 @@
+INFO:root:ツール実行開始
+INFO:root:[INFO]更新情報なし
+INFO:root:[OK]商品情報登録: OrderedDict([('brand', 'BURBERRY'), ('item_num', '456092749990'), ('total-sizes', '/31/32'), ('buyma_id', '48255460'), ('buyma_num', '456092749990'), ('buyma_color', 'INDIGO'), ('buyma_sizes', '32/買付可/,34/買付可/,36/買付可/,38/買付可/,40/買付可/,42/買付可/,44/買付可/,46/買付可/,48/買付可/,50/買付可/,52/買付可/,54/買付可/,'), ('shop_name', 'StyleIsNow'), ('price_memo', '48000'), ('present_price', '250000'), ('lowest_price', '38882'), ('buyer_name', 'Ciao Italia'), ('buyer_url', 'https://www.buyma.com/buyer/5824366.html'), ('partition_price', '40608'), ('change_price', '250001')])
+INFO:root:ツール実行終了

@@ -126,7 +126,9 @@ class ItemUpdate:
         print('call update_item_size {0}'.format(buyma_update_data))
         self.click_size(buyma_update_data['buyma_id'])
         WebDriverWait(self.browser, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'jquery-ui-dialog--primary')))
+                EC.presence_of_element_located((By.CLASS_NAME, 'js-colorsize-table-header ')))
+                #EC.presence_of_element_located((By.CLASS_NAME, 'jquery-ui-dialog--primary')))
+
         #更新リストをbuyma情報をベースに作成する
         buyma_update_set = {}
         for buyma_size in buyma_update_data['buyma_sizes'].split(','):
@@ -149,8 +151,7 @@ class ItemUpdate:
         else:
             self.size_status_modify(buyma_update_set)
             self.click_save()
-            pass
-        self.price_status_modify(buyma_update_data)
+            self.price_status_modify(buyma_update_data)
 
     def click_size(self, buyma_id):
         """

@@ -4,6 +4,8 @@ import time
 import sys
 import os
 import logging
+from logging import getLogger, FileHandler, Formatter, INFO, WARN
+
 import datetime
 
 from bs4 import BeautifulSoup as bs
@@ -28,14 +30,22 @@ BUY_SELL_PAGE_FORMAT = 'https://www.buyma.com/my/sell/{0}/edit?tab=b'
 config = configparser.ConfigParser()
 config.read('../config/config.ini')
 
+logging = getLogger("logger")
 logdate_fmt = datetime.datetime.now().strftime('%Y%m%d%H%M')
-logging.basicConfig(filename='../log/{0}-buymaupdate.log'.format(logdate_fmt), level=logging.INFO)
+
+handler = FileHandler(filename='../log/{0}-buymaupdate.log'.format(logdate_fmt), encoding='utf-8')
+handler.setLevel(INFO)
+handler.setFormatter(Formatter("%(asctime)s %(levelname)8s %(message)s"))
+
+logging.addHandler(handler)
+
 class ItemUpdate:
     def __init__(self):
         """
         コンストラクタ
         """
         self.session = requests.Session()
+        self.account = config['buyma']['account']       
         self.payload = {
             'txtLoginId': config['buyma']['user'],
             'txtLoginPass': config['buyma']['passwd'],
@@ -95,8 +105,8 @@ class ItemUpdate:
         buyma_num = kwargs['buyma_num']
         print('call search_item_sell_page {0}'.format(buyma_num))
         WebDriverWait(self.browser, 300).until(
-                EC.presence_of_element_located((By.ID, 'conditional_text')))
-        search_element = self.browser.find_element(By.ID, 'conditional_text')
+                EC.presence_of_element_located((By.ID, 'keyword')))
+        search_element = self.browser.find_element(By.ID, 'keyword')
         search_element.clear()
         search_element.send_keys(buyma_num)
         search_element.send_keys(Keys.RETURN)

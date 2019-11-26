@@ -11,7 +11,7 @@ class CSV:
             result_dict
         """
         data = []
-        with open(csv_file) as f:
+        with open(csv_file, encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 if len(row['total-sizes']) != 0:

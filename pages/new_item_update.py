@@ -161,7 +161,9 @@ class ItemUpdate:
         else:
             self.size_status_modify(buyma_update_set)
             self.click_save()
-            self.price_status_modify(buyma_update_data)
+            print(buyma_update_data, self.account)
+            if buyma_update_data['buyer_name'] != self.account:
+                self.price_status_modify(buyma_update_data)
 
     def click_size(self, buyma_id):
         """
@@ -206,6 +208,8 @@ class ItemUpdate:
                 continue
             except TypeError:
                 continue
+        print("color_id")
+        print(_buyma_update_set)
         return _buyma_update_set
     def size_status_modify(self, buyma_update_set):
         """

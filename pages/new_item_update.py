@@ -185,7 +185,8 @@ class ItemUpdate:
         source = bs(html, 'html5lib')
         print(source.find('span', class_='js-error-messasge-area').string)
         if source.find('span', class_='js-error-messasge-area').string == '色・サイズ(数量)が変更されていません。':
-            logging.info('[INFO]更新情報なし')
+            #logging.info('[INFO]更新情報なし')
+            print('[INFO]更新情報なし')
             _save_element = self.browser.find_element_by_link_text('キャンセル')
             _save_element.click()
     
@@ -289,13 +290,14 @@ if __name__ == '__main__':
     all_item_url = []
     all_item_info = []
     driver_path = '../resource/chromedriver'
-    input_file = '../input/buyma_link.csv'
+#    input_file = '../input/buyma_link.csv'
+    input_file = '../input/tmp.csv'
 
     buyma = ItemUpdate()
     buyma.SetLoginSession() 
     
     buyma_update_datas = CSV().GetDictFromCsv(input_file)
-    options = Options()
+    #options = Options()
     browser = webdriver.Chrome(chrome_options=options, executable_path=driver_path)
     buyma.open_login_page(browser)
     buyma.open_serach_page()
@@ -305,16 +307,25 @@ if __name__ == '__main__':
             is_there_error = buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_num'])
             if is_there_error:
                 print('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
-                logging.info('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
+                #logging.info('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
                 continue
+            elif buyma_update_data['item_num'] == 'NotFound':
+                print('[INFO] 引当たりなしのため、出品停止処理を開始します {0}'.format(buyma_update_data))
+                #logging.info('[INFO] 引当たりなしのため、出品停止処理を開始します {0}'.format(buyma_update_data))
+                buyma.size_status_modify_no_stock(buyma_update_data)
+
             else:
+                print('[INFO] 商品登録情報の修正を実施します {0}'.format(buyma_update_data))
+                #logging.info('[INFO] 商品登録情報の修正を実施します {0}'.format(buyma_update_data))
                 buyma.update_item_size(buyma_update_data=buyma_update_data)
-                logging.info('[OK]商品情報登録: {0}'.format(buyma_update_data))
+                print('[OK]商品情報登録: {0}'.format(buyma_update_data))
+                #logging.info('[OK]商品情報登録: {0}'.format(buyma_update_data))
         except Exception as e:
             print('buyma商品情報の更新に失敗しました {0}'.format(e))
             print(buyma_update_data)
-            logging.info('[NG]buyma商品情報の更新に失敗しました {0}:{1}'.format(e, buyma_update_data))
+            #logging.info('[NG]buyma商品情報の更新に失敗しました {0}:{1}'.format(e, buyma_update_data))
             continue
     
     browser.quit()
-    logging.info('ツール実行終了')
+    print('ツール実行終了')
+    #logging.info('ツール実行終了')

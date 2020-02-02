@@ -151,9 +151,9 @@ class ItemUpdate:
         del buyma_update_set['']        
         buyma_update_set = self.add_color_size_id(buyma_update_set)
         #全て在庫無しの場合は別の処理を入れる
-        print(buyma_update_data)
         if set([x.split('/')[0] for _,x in buyma_update_set.items()]) == {'在庫なし'}:
-            first_size = sorted(buyma_update_set.keys())[0]
+            #first_size = sorted(buyma_update_set.keys())[0]
+            first_size = str(sorted(list(map(float, buyma_update_set.keys())))[0])
             buyma_update_set[first_size] = buyma_update_set[first_size].replace('在庫なし', '買付可')
             self.size_status_modify(buyma_update_set)
             self.click_save()
@@ -297,7 +297,7 @@ if __name__ == '__main__':
     buyma.SetLoginSession() 
     
     buyma_update_datas = CSV().GetDictFromCsv(input_file)
-    #options = Options()
+    options = Options()
     browser = webdriver.Chrome(chrome_options=options, executable_path=driver_path)
     buyma.open_login_page(browser)
     buyma.open_serach_page()

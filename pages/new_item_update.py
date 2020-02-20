@@ -290,8 +290,7 @@ if __name__ == '__main__':
     all_item_url = []
     all_item_info = []
     driver_path = '../resource/chromedriver'
-#    input_file = '../input/buyma_link.csv'
-    input_file = '../input/tmp.csv'
+    input_file = '../input/buyma_link.csv'
 
     buyma = ItemUpdate()
     buyma.SetLoginSession() 
@@ -301,8 +300,9 @@ if __name__ == '__main__':
     browser = webdriver.Chrome(chrome_options=options, executable_path=driver_path)
     buyma.open_login_page(browser)
     buyma.open_serach_page()
-    logging.info('ツール実行開始')
+    print('ツール実行開始')
     for buyma_update_data in buyma_update_datas:
+        print(buyma_update_data)
         try:
             is_there_error = buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_num'])
             if is_there_error:

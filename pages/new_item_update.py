@@ -151,7 +151,6 @@ class ItemUpdate:
         del buyma_update_set['']        
         buyma_update_set = self.add_color_size_id(buyma_update_set)
         #全て在庫無しの場合は別の処理を入れる
-        print(buyma_update_data)
         if set([x.split('/')[0] for _,x in buyma_update_set.items()]) == {'在庫なし'}:
             first_size = sorted(buyma_update_set.keys())[0]
             buyma_update_set[first_size] = buyma_update_set[first_size].replace('在庫なし', '買付可')
@@ -290,8 +289,7 @@ if __name__ == '__main__':
     all_item_url = []
     all_item_info = []
     driver_path = '../resource/chromedriver'
-#    input_file = '../input/buyma_link.csv'
-    input_file = '../input/tmp.csv'
+    input_file = '../input/buyma_link.csv'
 
     buyma = ItemUpdate()
     buyma.SetLoginSession() 
@@ -301,8 +299,9 @@ if __name__ == '__main__':
     browser = webdriver.Chrome(chrome_options=options, executable_path=driver_path)
     buyma.open_login_page(browser)
     buyma.open_serach_page()
-    logging.info('ツール実行開始')
+    print('ツール実行開始')
     for buyma_update_data in buyma_update_datas:
+        print(buyma_update_data)
         try:
             is_there_error = buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_num'])
             if is_there_error:

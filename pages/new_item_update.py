@@ -232,6 +232,7 @@ class ItemUpdate:
         """
         全てのサイズで在庫が無い場合、仮で在庫ありとした最初のサイズを在庫なしとして更新する
         """
+        print('[INFO] 出品停止処理を実施します {0}'.format(buyma_update_data))
         buyma_update_data = buyma_update_data
         self.browser.get(BUY_SELL_PAGE_FORMAT.format(buyma_update_data['buyma_id']))
         WebDriverWait(self.browser, 10).until(
@@ -241,6 +242,7 @@ class ItemUpdate:
         switch_element.click()
         self.click_save_btn()
         self.open_serach_page()
+        print('[INFO][OK] 出品停止処理を完了します')
 
     def click_save_btn(self):
         """
@@ -289,7 +291,7 @@ if __name__ == '__main__':
     all_item_url = []
     all_item_info = []
     driver_path = '../resource/chromedriver'
-    input_file = '../input/buyma_link.csv'
+    input_file = '/root/buyma_check/output/buyma_link.csv'
 
     buyma = ItemUpdate()
     buyma.SetLoginSession() 

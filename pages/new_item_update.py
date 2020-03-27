@@ -26,6 +26,7 @@ LOGIN_URL='https://www.buyma.com/login/'
 AUTH_URL='https://www.buyma.com/login/auth/'
 BUY_TOP_URL_FORMAT = 'https://www.buyma.com/my/buyeritems/?sro=2&rows=50&p={0}#/'
 BUY_SELL_PAGE_FORMAT = 'https://www.buyma.com/my/sell/{0}/edit?tab=b'
+BUY_RETURN_URL = 'https://www.buyma.com/my/sell/?status=for_sale&tab=b#/'
 
 config = configparser.ConfigParser()
 config.read('../config/config.ini')
@@ -287,6 +288,9 @@ class ItemUpdate:
         """
         size_element = self.browser.find_element(By.LINK_TEXT, '設定する')
         size_element.click()       
+    def return_top(self):
+        self.browser.get(BUY_RETURN_URL)
+        
 
 if __name__ == '__main__':
     all_item_url = []
@@ -326,6 +330,7 @@ if __name__ == '__main__':
         except Exception as e:
             print('buyma商品情報の更新に失敗しました {0}'.format(e))
             print(buyma_update_data)
+            buyma.return_top()
             #logging.info('[NG]buyma商品情報の更新に失敗しました {0}:{1}'.format(e, buyma_update_data))
             continue
     

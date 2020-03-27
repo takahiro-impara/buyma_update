@@ -241,6 +241,7 @@ class ItemUpdate:
         switch_element  = self.browser.find_element_by_class_name('sell-status-switch')
         switch_element.click()
         self.click_save_btn()
+        time.sleep(0.2)
         self.open_serach_page()
         print('[INFO][OK] 出品停止処理を完了します')
 
@@ -291,13 +292,14 @@ if __name__ == '__main__':
     all_item_url = []
     all_item_info = []
     driver_path = '../resource/chromedriver'
-    input_file = '/root/buyma_check/output/buyma_link.csv'
+    #input_file = '/root/buyma_check/output/buyma_link.csv'
+    input_file = '../input/buyma_link.csv'
 
     buyma = ItemUpdate()
     buyma.SetLoginSession() 
     
     buyma_update_datas = CSV().GetDictFromCsv(input_file)
-    #options = Options()
+    options = Options()
     browser = webdriver.Chrome(chrome_options=options, executable_path=driver_path)
     buyma.open_login_page(browser)
     buyma.open_serach_page()

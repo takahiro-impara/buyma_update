@@ -134,11 +134,15 @@ class ItemUpdate:
             buyma_update_data(dict): buyma商品情報
         """
         buyma_update_data=kwargs['buyma_update_data']
+        def check_if_change_size(buyma_update_data):
+            _buyma_sizes = sorted([x.split('/')[0] for x in buyma_update_data['buyma_sizes'].split(',') if '買付可' in x])
+            _total_sizes = sorted([x for x in buyma_update_data['total-sizes'].split('/') if len(x) != 0])
+            return True if _buyma_sizes == _total_sizes else False
+
+        def check_if_change_price(buyma_update_data):
+            return True if buyma_update_data['present_price'] == buyma_update_data['change_price'] else False
+
         print('call update_item_size {0}'.format(buyma_update_data))
-        self.click_size(buyma_update_data['buyma_id'])
-        WebDriverWait(self.browser, 10).until(
-                EC.presence_of_element_located((By.CLASS_NAME, 'js-colorsize-table-header ')))
-                #EC.presence_of_element_located((By.CLASS_NAME, 'jquery-ui-dialog--primary')))
 
         #更新リストをbuyma情報をベースに作成する
         buyma_update_set = {}
@@ -150,19 +154,28 @@ class ItemUpdate:
             if key in [x for x in buyma_update_data['total-sizes'].split('/')]:
                 buyma_update_set[key] = '買付可'
         del buyma_update_set['']        
-        buyma_update_set = self.add_color_size_id(buyma_update_set)
         #全て在庫無しの場合は別の処理を入れる
         if set([x.split('/')[0] for _,x in buyma_update_set.items()]) == {'在庫なし'}:
+            self.click_size(buyma_update_data['buyma_id'])
+            WebDriverWait(self.browser, 10).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, 'js-colorsize-table-header ')))
+            buyma_update_set = self.add_color_size_id(buyma_update_set)
             first_size = sorted(buyma_update_set.keys())[0]
             buyma_update_set[first_size] = buyma_update_set[first_size].replace('在庫なし', '買付可')
             self.size_status_modify(buyma_update_set)
             self.click_save()
             self.size_status_modify_no_stock(buyma_update_data)
         else:
-            self.size_status_modify(buyma_update_set)
-            self.click_save()
+            if not check_if_change_size(buyma_update_data):
+                self.click_size(buyma_update_data['buyma_id'])
+                WebDriverWait(self.browser, 10).until(
+                        EC.presence_of_element_located((By.CLASS_NAME, 'js-colorsize-table-header ')))
+                buyma_update_set = self.add_color_size_id(buyma_update_set)
+                self.size_status_modify(buyma_update_set)
+                self.click_save()
             if buyma_update_data['buyer_name'] != self.account:
-                self.price_status_modify(buyma_update_data)
+                if not check_if_change_price(buyma_update_data):
+                    self.price_status_modify(buyma_update_data)
 
     def click_size(self, buyma_id):
         """

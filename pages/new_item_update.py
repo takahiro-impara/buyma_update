@@ -221,8 +221,6 @@ class ItemUpdate:
                 continue
             except TypeError:
                 continue
-        print("color_id")
-        print(_buyma_update_set)
         return _buyma_update_set
     def size_status_modify(self, buyma_update_set):
         """
@@ -230,7 +228,6 @@ class ItemUpdate:
         :params
             buyma_update_set: buyma更新データ
         """
-        print(buyma_update_set)
         for size, is_stock in buyma_update_set.items():
             is_there_stock, color_id = is_stock.split('/')
             color_xpath = "//select[@colorsizeid={0}]".format(color_id)
@@ -310,14 +307,13 @@ if __name__ == '__main__':
     all_item_info = []
     missed_list = []
     driver_path = '../resource/chromedriver'
-    #input_file = '/root/buyma_check/output/buyma_link.csv'
-    input_file = '../input/buyma_link.csv'
+    input_file = '/root/buyma_check/output/buyma_link.csv'
 
     buyma = ItemUpdate()
     buyma.SetLoginSession() 
     
     buyma_update_datas = CSV().GetDictFromCsv(input_file)
-    options = Options()
+    #options = Options()
     browser = webdriver.Chrome(chrome_options=options, executable_path=driver_path)
     buyma.open_login_page(browser)
     buyma.open_serach_page()
@@ -351,6 +347,7 @@ if __name__ == '__main__':
     print('[MISSED]修正に失敗した商品は下記となります')
     print(missed_list)
     print('[RETRY]ツール再実行開始')
+    missed_list_2 = []
     for buyma_update_data in missed_list:
         print(buyma_update_data)
         try:
@@ -373,9 +370,12 @@ if __name__ == '__main__':
         except Exception as e:
             print('buyma商品情報の更新に失敗しました {0}'.format(e))
             print(buyma_update_data)
+            missed_list_2.append(buyma_update_data)
             buyma.return_top()
             #logging.info('[NG]buyma商品情報の更新に失敗しました {0}:{1}'.format(e, buyma_update_data))
             continue
+    print('[MISSED SECOUND]再修正に失敗した商品は下記となります')
+    print(missed_list_2)
     
     browser.quit()
     print('ツール実行終了')

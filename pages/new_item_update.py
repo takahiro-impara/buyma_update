@@ -196,7 +196,7 @@ class ItemUpdate:
         html = self.browser.page_source.encode('utf-8')
         source = bs(html, 'html5lib')
         print(source.find('span', class_='js-error-messasge-area').string)
-        if source.find('span', class_='js-error-messasge-area').string == '色click_save・サイズ(数量)が変更されていません。':
+        if source.find('span', class_='js-error-messasge-area').string == '色・サイズ(数量)が変更されていません。':
             #logging.info('[INFO]更新情報なし')
             print('[INFO]更新情報なし')
             _save_element = self.browser.find_element_by_link_text('キャンセル')
@@ -317,7 +317,7 @@ if __name__ == '__main__':
     buyma.SetLoginSession() 
     
     buyma_update_datas = CSV().GetDictFromCsv(input_file)
-    options = Options()
+    #options = Options()
     browser = webdriver.Chrome(chrome_options=options, executable_path=driver_path)
     buyma.open_login_page(browser)
     buyma.open_serach_page()

@@ -103,7 +103,7 @@ class ItemUpdate:
         buyma IDから特定の商品を検索表示する
         buyma_update_data(dict): buyma商品付けデータ
         """
-        buyma_num = kwargs['buyma_num']
+        buyma_num = kwargs['buyma_id']
         print('call search_item_sell_page {0}'.format(buyma_num))
         WebDriverWait(self.browser, 300).until(
                 EC.presence_of_element_located((By.ID, 'keyword')))
@@ -300,6 +300,8 @@ class ItemUpdate:
         size_element.click()       
     def return_top(self):
         self.browser.get(BUY_RETURN_URL)
+    def getsnap(self, snap_name):
+        self.browser.save_screenshot(snap_name)
         
 
 if __name__ == '__main__':
@@ -319,9 +321,8 @@ if __name__ == '__main__':
     buyma.open_serach_page()
     print('ツール実行開始')
     for buyma_update_data in buyma_update_datas:
-        print(buyma_update_data)
         try:
-            is_there_error = buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_num'])
+            is_there_error = buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_id'])
             if is_there_error:
                 print('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
                 #logging.info('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
@@ -332,50 +333,59 @@ if __name__ == '__main__':
                 buyma.size_status_modify_no_stock(buyma_update_data)
 
             else:
-                print('[INFO] 商品登録情報の修正を実施します {0}'.format(buyma_update_data))
-                #logging.info('[INFO] 商品登録情報の修正を実施します {0}'.format(buyma_update_data))
-                buyma.update_item_size(buyma_update_data=buyma_update_data)
-                print('[OK]商品情報登録: {0}'.format(buyma_update_data))
-                #logging.info('[OK]商品情報登録: {0}'.format(buyma_update_data))
+                try:
+                    print('[INFO] 商品登録情報の修正を実施します {0}'.format(buyma_update_data))
+                    #logging.info('[INFO] 商品登録情報の修正を実施します {0}'.format(buyma_update_data))
+                    buyma.update_item_size(buyma_update_data=buyma_update_data)
+                    print('[OK]商品情報登録: {0}'.format(buyma_update_data))
+                    #logging.info('[OK]商品情報登録: {0}'.format(buyma_update_data))
+                except:
+                    print('buyma商品情報の更新に失敗しました {0}'.format(e))
+                    print(buyma_update_data)
+                    missed_list.append(buyma_update_data)
+                    buyma.getsnap('/home/ec2-user/snap/'+buyma_update_data['buyma_id']+'.png')
+                    buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_id'])
+                    continue
         except Exception as e:
             print('buyma商品情報の更新に失敗しました {0}'.format(e))
             print(buyma_update_data)
             missed_list.append(buyma_update_data)
+            buyma.getsnap('/home/ec2-user/snap/'+buyma_update_data['buyma_id']+'.png')
             buyma.return_top()
             #logging.info('[NG]buyma商品情報の更新に失敗しました {0}:{1}'.format(e, buyma_update_data))
             continue
-    print('[MISSED]修正に失敗した商品は下記となります')
-    print(missed_list)
-    print('[RETRY]ツール再実行開始')
-    missed_list_2 = []
-    for buyma_update_data in missed_list:
-        print(buyma_update_data)
-        try:
-            is_there_error = buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_num'])
-            if is_there_error:
-                print('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
-                #logging.info('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
-                continue
-            elif buyma_update_data['item_num'] == 'NotFound':
-                print('[INFO] 引当たりなしのため、出品停止処理を開始します {0}'.format(buyma_update_data))
-                #logging.info('[INFO] 引当たりなしのため、出品停止処理を開始します {0}'.format(buyma_update_data))
-                buyma.size_status_modify_no_stock(buyma_update_data)
+    #print('[MISSED]修正に失敗した商品は下記となります')
+    #print(missed_list)
+    #print('[RETRY]ツール再実行開始')
+    #missed_list_2 = []
+    #for buyma_update_data in missed_list:
+    #    print(buyma_update_data)
+    #    try:
+    #        is_there_error = buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_num'])
+    #        if is_there_error:
+    #            print('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
+    #            #logging.info('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
+    #            continue
+    #        elif buyma_update_data['item_num'] == 'NotFound':
+    #            print('[INFO] 引当たりなしのため、出品停止処理を開始します {0}'.format(buyma_update_data))
+    #            #logging.info('[INFO] 引当たりなしのため、出品停止処理を開始します {0}'.format(buyma_update_data))
+    #            buyma.size_status_modify_no_stock(buyma_update_data)
 
-            else:
-                print('[INFO] 商品登録情報の修正を実施します {0}'.format(buyma_update_data))
-                #logging.info('[INFO] 商品登録情報の修正を実施します {0}'.format(buyma_update_data))
-                buyma.update_item_size(buyma_update_data=buyma_update_data)
-                print('[OK]商品情報登録: {0}'.format(buyma_update_data))
-                #logging.info('[OK]商品情報登録: {0}'.format(buyma_update_data))
-        except Exception as e:
-            print('buyma商品情報の更新に失敗しました {0}'.format(e))
-            print(buyma_update_data)
-            missed_list_2.append(buyma_update_data)
-            buyma.return_top()
-            #logging.info('[NG]buyma商品情報の更新に失敗しました {0}:{1}'.format(e, buyma_update_data))
-            continue
-    print('[MISSED SECOUND]再修正に失敗した商品は下記となります')
-    print(missed_list_2)
+    #        else:
+    #            print('[INFO] 商品登録情報の修正を実施します {0}'.format(buyma_update_data))
+    #            #logging.info('[INFO] 商品登録情報の修正を実施します {0}'.format(buyma_update_data))
+    #            buyma.update_item_size(buyma_update_data=buyma_update_data)
+    #            print('[OK]商品情報登録: {0}'.format(buyma_update_data))
+    #            #logging.info('[OK]商品情報登録: {0}'.format(buyma_update_data))
+    #    except Exception as e:
+    #        print('buyma商品情報の更新に失敗しました {0}'.format(e))
+    #        print(buyma_update_data)
+    #        missed_list_2.append(buyma_update_data)
+    #        buyma.return_top()
+    #        #logging.info('[NG]buyma商品情報の更新に失敗しました {0}:{1}'.format(e, buyma_update_data))
+    #        continue
+    #print('[MISSED SECOUND]再修正に失敗した商品は下記となります')
+    #print(missed_list_2)
     
     browser.quit()
     print('ツール実行終了')

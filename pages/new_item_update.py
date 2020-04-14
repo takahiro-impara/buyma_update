@@ -156,6 +156,7 @@ class ItemUpdate:
         del buyma_update_set['']        
         #全て在庫無しの場合は別の処理を入れる
         if set([x.split('/')[0] for _,x in buyma_update_set.items()]) == {'在庫なし'}:
+            #time.spleep(0.1)
             self.click_size(buyma_update_data['buyma_id'])
             WebDriverWait(self.browser, 10).until(
                     EC.presence_of_element_located((By.CLASS_NAME, 'js-colorsize-table-header ')))
@@ -167,6 +168,7 @@ class ItemUpdate:
             self.size_status_modify_no_stock(buyma_update_data)
         else:
             if not check_if_change_size(buyma_update_data):
+                #time.spleep(0.1)
                 self.click_size(buyma_update_data['buyma_id'])
                 WebDriverWait(self.browser, 10).until(
                         EC.presence_of_element_located((By.CLASS_NAME, 'js-colorsize-table-header ')))
@@ -310,6 +312,7 @@ if __name__ == '__main__':
     missed_list = []
     driver_path = '../resource/chromedriver'
     input_file = '/root/buyma_check/output/buyma_link.csv'
+    input_file = '../input/buyma_link.csv'
 
     buyma = ItemUpdate()
     buyma.SetLoginSession() 
@@ -322,7 +325,7 @@ if __name__ == '__main__':
     print('ツール実行開始')
     for buyma_update_data in buyma_update_datas:
         try:
-            is_there_error = buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_id'])
+            is_there_error = buyma.search_item_sell_page(buyma_id=buyma_update_data['buyma_id'])
             if is_there_error:
                 print('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
                 #logging.info('[ERROR] 商品情報が見つかりません {0}'.format(buyma_update_data))
@@ -340,11 +343,12 @@ if __name__ == '__main__':
                     print('[OK]商品情報登録: {0}'.format(buyma_update_data))
                     #logging.info('[OK]商品情報登録: {0}'.format(buyma_update_data))
                 except:
-                    print('buyma商品情報の更新に失敗しました {0}'.format(e))
+                    print('buyma商品情報の更新に失敗しました')
                     print(buyma_update_data)
                     missed_list.append(buyma_update_data)
-                    buyma.getsnap('/home/ec2-user/snap/'+buyma_update_data['buyma_id']+'.png')
-                    buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_id'])
+                    buyma.update_item_size(buyma_update_data=buyma_update_data)
+                    #buyma.getsnap('/home/ec2-user/snap/'+buyma_update_data['buyma_id']+'.png')
+                    #buyma.search_item_sell_page(buyma_num=buyma_update_data['buyma_id'])
                     continue
         except Exception as e:
             print('buyma商品情報の更新に失敗しました {0}'.format(e))

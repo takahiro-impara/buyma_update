@@ -5,7 +5,7 @@ import sys
 import os
 import logging
 from logging import getLogger, FileHandler, Formatter, INFO, WARN
-
+import platform
 import datetime
 
 from bs4 import BeautifulSoup as bs
@@ -20,6 +20,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 sys.path.append(os.path.dirname(os.path.abspath(__file__)) + '/../')
 from utils.driverOptions import options
 from csvs.ReadCsv import CSV
+from s3.S3manage import S3
 
 BUYMA_TOP_URL = 'https://www.buyma.com'
 LOGIN_URL='https://www.buyma.com/login/'
@@ -31,14 +32,14 @@ BUY_RETURN_URL = 'https://www.buyma.com/my/sell/?status=for_sale&tab=b#/'
 config = configparser.ConfigParser()
 config.read('../config/config.ini')
 
-logging = getLogger("logger")
-logdate_fmt = datetime.datetime.now().strftime('%Y%m%d%H%M')
+#logging = getLogger("logger")
+#logdate_fmt = datetime.datetime.now().strftime('%Y%m%d%H%M')
 
-handler = FileHandler(filename='../log/{0}-buymaupdate.log'.format(logdate_fmt), encoding='utf-8')
-handler.setLevel(INFO)
-handler.setFormatter(Formatter("%(asctime)s %(levelname)8s %(message)s"))
+#handler = FileHandler(filename='../log/{0}-buymaupdate.log'.format(logdate_fmt), encoding='utf-8')
+#handler.setLevel(INFO)
+#handler.setFormatter(Formatter("%(asctime)s %(levelname)8s %(message)s"))
 
-logging.addHandler(handler)
+#logging.addHandler(handler)
 
 class ItemUpdate:
     def __init__(self):
@@ -270,7 +271,7 @@ class ItemUpdate:
     
     def price_status_modify(self, buyma_update_data):
         """
-         販売情報を修正する
+        販売情報を修正する
         :params
             buyma_update_set: buyma更新データ       
         """
@@ -310,15 +311,20 @@ if __name__ == '__main__':
     all_item_url = []
     all_item_info = []
     missed_list = []
-    driver_path = '../resource/chromedriver'
-    input_file = '/root/buyma_check/output/buyma_link.csv'
     input_file = '../input/buyma_link.csv'
+    bucket = config['common']['bucket']
+    if 'mac' in platform.platform():
+        driver_path = '../resource/chromedriver_mac'
+    else:
+        driver_path = '../resource/chromedriver_linux' 
+    if config['common']['is_visible_driver'] == 'True':
+        options = Options()
 
+    S3(bucket).download('{0}'.format(input_file.split('/')[-1]), '{0}'.format(input_file))
     buyma = ItemUpdate()
     buyma.SetLoginSession() 
     
     buyma_update_datas = CSV().GetDictFromCsv(input_file)
-    #options = Options()
     browser = webdriver.Chrome(chrome_options=options, executable_path=driver_path)
     buyma.open_login_page(browser)
     buyma.open_serach_page()
